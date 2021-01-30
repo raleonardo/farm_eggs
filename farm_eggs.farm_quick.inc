@@ -121,6 +121,7 @@ function farm_eggs_form($form, &$form_state) {
       '#type' => 'textfield',
       '#title' => t('Quantity ( class A size XL )'),
       '#required' => FALSE,
+      '#element_validate' => array('validate_and_default_zero'),
     );
     // Quantity class B.
     $form['eggs']['quantityB'] = array(
