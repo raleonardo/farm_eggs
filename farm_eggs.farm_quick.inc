@@ -18,6 +18,19 @@ function farm_eggs_farm_quick_forms() {
   );
 }
 
+// defaults the form value to zero if empty, or validates value as integer
+function validate_and_default_zero($element, &$form_state) {
+  $value = $element['#value'];
+  if ($value == ''){
+    form_set_value($element, 0, $form_state);
+  }
+  elseif (!is_numeric($value) || intval($value) != $value) {
+    form_error($element, t('%name must be an integer.', array(
+      '%name' => $element['#title'],
+    )));
+  }
+}
+
 /**
  * Form for adding egg harvest logs.
  */
@@ -28,14 +41,49 @@ function farm_eggs_form($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Record an egg harvest'),
     '#description' => t('Use this form to record an egg harvest. A harvest log will be created with standard details filled in.'),
+
   );
 
-  // Quantity.
-  $form['eggs']['quantity'] = array(
+  // Quantity S.
+  $form['eggs']['quantityS'] = array(
     '#type' => 'textfield',
-    '#title' => t('Quantity'),
-    '#required' => TRUE,
-    '#element_validate' => array('element_validate_integer_positive'),
+    '#title' => t('S'),
+    '#required' => FALSE,
+    '#element_validate' => array('validate_and_default_zero'),
+  );
+  // Quantity M.
+  $form['eggs']['quantityM'] = array(
+    '#type' => 'textfield',
+    '#title' => t('M'),
+    '#required' => FALSE,
+    '#element_validate' => array('validate_and_default_zero'),
+  );
+  // Quantity L.
+  $form['eggs']['quantityL'] = array(
+    '#type' => 'textfield',
+    '#title' => t('L'),
+    '#required' => FALSE,
+    '#element_validate' => array('validate_and_default_zero'),
+  );
+  // Quantity XL.
+   $form['eggs']['quantityXL'] = array(
+    '#type' => 'textfield',
+    '#title' => t('XL'),
+    '#required' => FALSE,
+  );
+  // Quantity class B.
+  $form['eggs']['quantityB'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Quantity (class B)'),
+    '#required' => FALSE,
+    '#element_validate' => array('validate_and_default_zero'),
+  );
+  // Quantity class C.
+  $form['eggs']['quantityC'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Quantity (class C)'),
+    '#required' => FALSE,
+    '#element_validate' => array('validate_and_default_zero'),
   );
 
   // Load active assets with the "farm_eggs" asset property.
@@ -62,10 +110,11 @@ function farm_eggs_form($form, &$form_state) {
   // If there are asset options, add checkboxes.
   if (!empty($asset_options)) {
     $form['eggs']['assets'] = array(
-      '#type' => 'checkboxes',
+      '#type' => 'radios',
       '#title' => t('Group/animal'),
       '#description' => t('Select the group/animal that these eggs came from. To add groups/animals to this list, edit their record and check the "Produces eggs" checkbox.'),
       '#options' => $asset_options,
+      '#required' => TRUE,
     );
 
     // If there is only one option, select it by default.
@@ -102,33 +151,60 @@ function farm_eggs_form_submit($form, &$form_state) {
   // The log type will be a harvest.
   $log_type = 'farm_harvest';
 
-  // Set log name.
-  $log_name = t('Collected @qty egg(s)', array('@qty' => $form_state['values']['quantity']));
-
-  // Load any assets that were selected.
-  $assets = array();
-  if (!empty($form_state['values']['assets'])) {
-    foreach ($form_state['values']['assets'] as $asset_id) {
-
-      // Load the asset.
-      $asset = farm_asset_load($asset_id);
-
-      // If it loaded, add it to the array.
-      if (!empty($asset)) {
-        $assets[] = $asset;
-      }
-    }
-  }
+  // radio buttons only provide one asset.
+  $assets = array(
+    farm_asset_load($form_state['values']['assets'])
+  );
 
   // Assemble an array of measurements.
   $measurements = array(
     array(
       'measure' => 'count',
-      'value' => $form_state['values']['quantity'],
+      'value' => $form_state['values']['quantityS'],
       'units' => t('egg(s)'),
-      'label' => '',
+      'label' => 'S',
     ),
+    array(
+      'measure' => 'count',
+      'value' => $form_state['values']['quantityM'],
+      'units' => t('egg(s)'),
+      'label' => 'M',
+    ),
+    array(
+      'measure' => 'count',
+      'value' => $form_state['values']['quantityL'],
+      'units' => t('egg(s)'),
+      'label' => 'L',
+    ),
+    array(
+      'measure' => 'count',
+      'value' => $form_state['values']['quantityXL'],
+      'units' => t('egg(s)'),
+      'label' => 'XL',
+    ),
+    array(
+      'measure' => 'count',
+      'value' => $form_state['values']['quantityB'],
+      'units' => t('egg(s)'),
+      'label' => 'ClassB',
+    ),
+    array(
+      'measure' => 'count',
+      'value' => $form_state['values']['quantityC'],
+      'units' => t('egg(s)'),
+      'label' => 'ClassC',
+    ),
+
   );
+
+  // calculate total quantity
+  $totalqty = 0;
+  foreach ( $measurements as $measurement) {
+    $totalqty += $measurement['value'];
+  }
+
+  // Set log name.
+  $log_name = t('Collected @qty egg(s) from the @flk', array('@qty' => $totalqty, '@flk' => $assets[0]->name));
 
   // Create a new farm quantity log.
   $log = farm_quantity_log_create($log_type, $log_name, REQUEST_TIME, TRUE, $assets, $measurements);
