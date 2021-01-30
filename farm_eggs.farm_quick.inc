@@ -31,6 +31,7 @@ function validate_and_default_zero($element, &$form_state) {
   }
 }
 
+
 /**
  * Form for adding egg harvest logs.
  */
@@ -44,47 +45,7 @@ function farm_eggs_form($form, &$form_state) {
 
   );
 
-  // Quantity S.
-  $form['eggs']['quantityS'] = array(
-    '#type' => 'textfield',
-    '#title' => t('S'),
-    '#required' => FALSE,
-    '#element_validate' => array('validate_and_default_zero'),
-  );
-  // Quantity M.
-  $form['eggs']['quantityM'] = array(
-    '#type' => 'textfield',
-    '#title' => t('M'),
-    '#required' => FALSE,
-    '#element_validate' => array('validate_and_default_zero'),
-  );
-  // Quantity L.
-  $form['eggs']['quantityL'] = array(
-    '#type' => 'textfield',
-    '#title' => t('L'),
-    '#required' => FALSE,
-    '#element_validate' => array('validate_and_default_zero'),
-  );
-  // Quantity XL.
-   $form['eggs']['quantityXL'] = array(
-    '#type' => 'textfield',
-    '#title' => t('XL'),
-    '#required' => FALSE,
-  );
-  // Quantity class B.
-  $form['eggs']['quantityB'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Quantity (class B)'),
-    '#required' => FALSE,
-    '#element_validate' => array('validate_and_default_zero'),
-  );
-  // Quantity class C.
-  $form['eggs']['quantityC'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Quantity (class C)'),
-    '#required' => FALSE,
-    '#element_validate' => array('validate_and_default_zero'),
-  );
+
 
   // Load active assets with the "farm_eggs" asset property.
   $asset_options = array();
@@ -119,7 +80,7 @@ function farm_eggs_form($form, &$form_state) {
 
     // If there is only one option, select it by default.
     if (count($asset_options) == 1) {
-      $form['eggs']['assets']['#default_value'] = drupal_map_assoc(array_keys($asset_options));
+      $form['eggs']['assets']['#default_value'] = array_keys($asset_options)[0];
     }
   }
 
@@ -131,7 +92,50 @@ function farm_eggs_form($form, &$form_state) {
       '#prefix' => '<p>',
       '#suffix' => '</p>',
     );
+    //return $form;
   }
+
+    // Quantity S.
+    $form['eggs']['quantityS'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Quantity ( class A size S )'),
+      '#required' => FALSE,
+      '#element_validate' => array('validate_and_default_zero'),
+    );
+    // Quantity M.
+    $form['eggs']['quantityM'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Quantity ( class A size M )'),
+      '#required' => FALSE,
+      '#element_validate' => array('validate_and_default_zero'),
+    );
+    // Quantity L.
+    $form['eggs']['quantityL'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Quantity ( class A size L )'),
+      '#required' => FALSE,
+      '#element_validate' => array('validate_and_default_zero'),
+    );
+    // Quantity XL.
+    $form['eggs']['quantityXL'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Quantity ( class A size XL )'),
+      '#required' => FALSE,
+    );
+    // Quantity class B.
+    $form['eggs']['quantityB'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Quantity ( class B )'),
+      '#required' => FALSE,
+      '#element_validate' => array('validate_and_default_zero'),
+    );
+    // Quantity class C.
+    $form['eggs']['quantityC'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Quantity ( class C )'),
+      '#required' => FALSE,
+      '#element_validate' => array('validate_and_default_zero'),
+    );
 
   // Submit button.
   $form['eggs']['submit'] = array(
