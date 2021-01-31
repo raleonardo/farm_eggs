@@ -208,11 +208,14 @@ function farm_eggs_form_submit($form, &$form_state) {
     $totalqty += $measurement['value'];
   }
 
+  // setting category
+  $categories = array( "Eggs" );
+
   // Set log name.
   $log_name = t('Collected @qty egg(s) from the @flk', array('@qty' => $totalqty, '@flk' => $assets[0]->name));
 
   // Create a new farm quantity log.
-  $log = farm_quantity_log_create($log_type, $log_name, REQUEST_TIME, TRUE, $assets, $measurements);
+  $log = farm_quantity_log_create($log_type, $log_name, REQUEST_TIME, TRUE, $assets, $measurements, '', $categories);
 
   // Link the log to the quick form.
   farm_quick_entity_link('farm_eggs_form', 'log', $log);
